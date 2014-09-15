@@ -31,6 +31,8 @@
           var row = generateTableRow(medal);
           $("tbody").append(row);
         }
+        highlightRow();
+        scrollToHighlightedRow();
       }
 
       function generateIconURL(medal) {
@@ -52,27 +54,29 @@
           template = template.replace(pattern, attribute.value);
         }
 
-        var sn = medal.getAttribute("sn");
-
-        var tableId = "medal-" + sn;
+        var tableId = "medal-" + medal.getAttribute("sn");
         template = template.replace("{{ id }}", tableId);
-
-        var highlightId = window.location.hash.replace(/#/g, '');
-        var tableClass = (highlightId == sn)? "warning": "";
-        template = template.replace("{{ class }}", tableClass);
-
         return template;
+      }
+
+      function getHighlightedRow() {
+        var highlightId = window.location.hash.replace(/#/g, '');
+        return $("tr#medal-" + highlightId);
       }
 
       function highlightRow() {
         $("tr.warning").removeClass("warning");
-        var highlightId = window.location.hash.replace(/#/g, '');
-        var tableId = "medal-" + highlightId;
-        $("tr#" + tableId).addClass("warning");
+        getHighlightedRow().addClass("warning");
+      }
+
+      function scrollToHighlightedRow() {
+        $("html, body").animate({
+          scrollTop: getHighlightedRow().offset().top
+        });
       }
     </script>
     <script type="text/html" id="table-row-template">
-      <tr id="{{ id }}" class="{{ class }}">
+      <tr id="{{ id }}">
         <td><img src="{{ iconurl }}" /></td>
         <td id="{{ sn }}">{{ sn }}</td>
         <td>{{ color }}</td>
