@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Crazy Arcade Medals</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"></link>
+    <script>
+    var xml;
+      $(document).on('ready', function() {
+        loadXML();
+      })
+
+      function loadXML() {
+        var proxyURL = "http://proxy.xoul.kr";
+        var dataURL = "http://ca.nexon.com/intro/recordset.xml";
+        var url = proxyURL + "?url=" + dataURL;
+        $.get(url).done(function(data) {
+          xml = data;
+          parseXML(data);
+         }).fail(function(data) {
+          console.log("Failed to load XML.", data);
+         });
+      }
+
+      function parseXML(xml) {
+        var medals = xml.children[0].children[1].children;
+        for (var i = 0; i < medals.length; i++) {
+          var medal = medals[i];
+          medal.setAttribute("iconurl", generateIconURL(medal));
+          var row = generateTableRow(medal);
+          $("tbody").append(row);
+        }
+      }
+
+      function generateIconURL(medal) {
+        var base = "http://s.nx.com/S2/Game/Ca/Ca/image/medal/exp_medal_";
+        var sn = medal.getAttribute("sn");
+        var id = "000".substr(0, 3 - sn.length);
+        var url = base + id + sn + ".gif";
+        return url;
+      }
+
+      function generateTableRow(medal) {
+        var template = $("#table-row-template").text();
+        for (var i = 0; i < medal.attributes.length; i++) {
+          var attribute = medal.attributes[i];
+          var name = attribute.name;
+          var value = attribute.value;
+          var pattern = new RegExp("{{ " + name + " }}", "g");
+          template = template.replace(pattern, attribute.value);
+        }
+        return template;
+      }
+    </script>
+    <script type="text/html" id="table-row-template">
+      <tr id="table-row-template">
+        <td><img src="{{ iconurl }}" /></td>
+        <td id="{{ sn }}">{{ sn }}</td>
+        <td>{{ color }}</td>
+        <td>{{ name }}</td>
+        <td>{{ linecolor }}</td>
+        <td>{{ linename }}</td>
+        <td>{{ exp_req }}</td>
+        <td>{{ exp_tot }}</td>
+      </tr>
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="jumbotron">
+        <h1>Crazy Arcade Medals</h1>
+        <p>I don't know why I made this.</p>
+      </div>
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>Icon</th>
+            <th>Level</th>
+            <th>Color</th>
+            <th>Name</th>
+            <th>Line Color</th>
+            <th>Line Name</th>
+            <th>Required Exp.</th>
+            <th>Total Exp.</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
