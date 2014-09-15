@@ -6,7 +6,7 @@
     <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"></link>
     <script>
-    var xml;
+      $(window).on('hashchange', highlightRow);
       $(document).on('ready', function() {
         loadXML();
       })
@@ -43,6 +43,7 @@
 
       function generateTableRow(medal) {
         var template = $("#table-row-template").text();
+
         for (var i = 0; i < medal.attributes.length; i++) {
           var attribute = medal.attributes[i];
           var name = attribute.name;
@@ -50,11 +51,28 @@
           var pattern = new RegExp("{{ " + name + " }}", "g");
           template = template.replace(pattern, attribute.value);
         }
+
+        var sn = medal.getAttribute("sn");
+
+        var tableId = "medal-" + sn;
+        template = template.replace("{{ id }}", tableId);
+
+        var highlightId = window.location.hash.replace(/#/g, '');
+        var tableClass = (highlightId == sn)? "warning": "";
+        template = template.replace("{{ class }}", tableClass);
+
         return template;
+      }
+
+      function highlightRow() {
+        $("tr.warning").removeClass("warning");
+        var highlightId = window.location.hash.replace(/#/g, '');
+        var tableId = "medal-" + highlightId;
+        $("tr#" + tableId).addClass("warning");
       }
     </script>
     <script type="text/html" id="table-row-template">
-      <tr id="table-row-template">
+      <tr id="{{ id }}" class="{{ class }}">
         <td><img src="{{ iconurl }}" /></td>
         <td id="{{ sn }}">{{ sn }}</td>
         <td>{{ color }}</td>
